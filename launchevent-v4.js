@@ -24,7 +24,7 @@ function onNewAppointmentComposeHandler(event) {
 function setMessage(event) {
   var item = Office.context.mailbox.item;
   
-  var htmlContent =
+  var htmlBody =
   "<p><b>Statement of Achievement:</b></p>" + 
   "<p><i>(What has to result from this meeting for the organizer to walk away elated with what was accomplished)</i></p>" + 
   "<p><b>Meeting Type (Informational or Decision):</b></p>" + 
@@ -63,3 +63,4 @@ function setMessage(event) {
     event.completed();
   });
 }
+
