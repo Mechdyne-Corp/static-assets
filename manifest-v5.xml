@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="MailApp">
+  <Id>01dfb68c-f301-4c02-9191-e402e6c761cd</Id>
+  <Version>1.0.5</Version>
+  <ProviderName>Mechdyne Corporate IT</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="NewMeetingAddin"/>
+  <Description DefaultValue="Event based add-in to insert effective meeting agenda to meeting invites"/>
+	<IconUrl DefaultValue="https://www.mechdyne.com/wp-content/themes/mechdyne/Mechdyne-Square.png"/>
+  <HighResolutionIconUrl DefaultValue="https://www.mechdyne.com/wp-content/themes/mechdyne/Mechdyne-Square.png"/>
+  <SupportUrl DefaultValue="https://www.mechdyne.com"/>
+  <AppDomains>
+    <AppDomain>https://raw.githubusercontent.com</AppDomain>
+    <AppDomain>https://www.mechdyne.com</AppDomain>
+  </AppDomains>
+  
+  <Requirements>
+    <Sets DefaultMinVersion="1.10">
+      <Set Name="Mailbox" />
+    </Sets>
+  </Requirements>
+
+  <!-- Old schema. This will be overridden by the VersionOverrides below. -->
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/commands-v5.html"/>
+        <RequestedHeight>250</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+<Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
+  </Rule>
+
+  <!-- /Old schema. -->
+
+ <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.10">
+        <bt:Set Name="Mailbox" />
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <!-- Event-based activation happens in a lightweight runtime.-->
+        <Runtimes>
+          <!-- HTML file including reference to or inline JavaScript event handlers.
+               This is used by Outlook on the web and on the new Mac UI, and new Outlook on Windows. -->
+          <Runtime resid="WebViewRuntime.Url">
+            <!-- JavaScript file containing event handlers. This is used by classic Outlook on Windows. -->
+            <Override type="javascript" resid="JSRuntime.Url"/>
+          </Runtime>
+        </Runtimes>
+        <DesktopFormFactor>
+          <FunctionFile resid="Commands.Url" />
+     
+          <!-- Can configure other command surface extension points for add-in command support. -->
+
+          <!-- Enable launching the add-in on the included events. -->
+          <ExtensionPoint xsi:type="LaunchEvent">
+            <LaunchEvents>
+            
+              <LaunchEvent Type="OnNewAppointmentOrganizer" FunctionName="onNewAppointmentComposeHandler"/>
+            </LaunchEvents>
+            <!-- Identifies the runtime to be used (also referenced by the Runtime element). -->
+            <SourceLocation resid="WebViewRuntime.Url"/>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+   
+      <bt:Urls>
+        <bt:Url id="Commands.Url" DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/commands-v5.html" />
+        <bt:Url id="WebViewRuntime.Url" DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/commands-v5.html" />
+        <!-- Entry needed for classic Outlook on Windows. -->
+        <bt:Url id="JSRuntime.Url" DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/launchevent-v5.js" />
+      </bt:Urls>
+  
+    </Resources>
+  </VersionOverrides>
+</VersionOverrides>
+</OfficeApp>
