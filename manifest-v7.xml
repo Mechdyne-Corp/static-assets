@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="MailApp">
+
+  <!-- Unique identifier for this add-in. Do not change — changing this causes Outlook to treat it as a new add-in. -->
+  <Id>01dfb68c-f301-4c02-9191-e402e6c761cd</Id>
+
+  <!-- Increment version when deploying updates so Outlook picks up the new manifest. -->
+  <Version>1.0.7</Version>
+
+  <ProviderName>Mechdyne Corporate IT</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="NewMeetingAddin"/>
+  <Description DefaultValue="Event based add-in to insert effective meeting agenda to meeting invites"/>
+  <IconUrl DefaultValue="https://www.mechdyne.com/wp-content/themes/mechdyne/Mechdyne-Square.png"/>
+  <HighResolutionIconUrl DefaultValue="https://www.mechdyne.com/wp-content/themes/mechdyne/Mechdyne-Square.png"/>
+  <SupportUrl DefaultValue="https://www.mechdyne.com"/>
+
+  <!-- AppDomains must include every domain the add-in loads resources from. -->
+  <AppDomains>
+    <AppDomain>https://raw.githubusercontent.com</AppDomain>
+    <AppDomain>https://www.mechdyne.com</AppDomain>
+  </AppDomains>
+
+  <!-- Mailbox 1.10 is required for event-based activation (OnNewAppointmentOrganizer). -->
+  <Requirements>
+    <Sets DefaultMinVersion="1.10">
+      <Set Name="Mailbox" />
+    </Sets>
+  </Requirements>
+
+  <!--
+    Legacy FormSettings schema — required for older Outlook clients that do not
+    support VersionOverrides. It is superseded by the VersionOverrides block below
+    for clients that do support it.
+  -->
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/commands-v7.html"/>
+        <RequestedHeight>250</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
+  </Rule>
+
+  <!--
+    VersionOverrides V1_0 wraps V1_1. Outlook reads the innermost version it supports,
+    so modern clients use V1_1 (which includes event-based activation support).
+  -->
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+
+      <Requirements>
+        <bt:Sets DefaultMinVersion="1.10">
+          <bt:Set Name="Mailbox" />
+        </bt:Sets>
+      </Requirements>
+
+      <Hosts>
+        <Host xsi:type="MailHost">
+
+          <!--
+            Two runtimes are declared for cross-platform compatibility:
+            - WebViewRuntime: used by Outlook on the web, new Mac UI, and new Outlook on Windows.
+              Points to an HTML file that loads the JS handler via a <script> tag.
+            - JSRuntime (Override): used by classic Outlook on Windows.
+              Points directly to the JS file — no HTML wrapper needed.
+          -->
+          <Runtimes>
+            <Runtime resid="WebViewRuntime.Url">
+              <Override type="javascript" resid="JSRuntime.Url"/>
+            </Runtime>
+          </Runtimes>
+
+          <DesktopFormFactor>
+            <FunctionFile resid="Commands.Url" />
+
+            <!-- Register the event that triggers the handler on new appointment compose. -->
+            <ExtensionPoint xsi:type="LaunchEvent">
+              <LaunchEvents>
+                <LaunchEvent Type="OnNewAppointmentOrganizer" FunctionName="onNewAppointmentComposeHandler"/>
+              </LaunchEvents>
+              <SourceLocation resid="WebViewRuntime.Url"/>
+            </ExtensionPoint>
+          </DesktopFormFactor>
+
+        </Host>
+      </Hosts>
+
+      <Resources>
+        <bt:Urls>
+          <!-- HTML entry point for WebView-based runtimes. -->
+          <bt:Url id="Commands.Url" DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/commands-v7.html" />
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/commands-v7.html" />
+          <!-- JS entry point for classic Outlook on Windows (JS-only runtime). -->
+          <bt:Url id="JSRuntime.Url" DefaultValue="https://raw.githubusercontent.com/Mechdyne-Corp/static-assets/refs/heads/main/launchevent-v7.js" />
+        </bt:Urls>
+      </Resources>
+
+    </VersionOverrides>
+  </VersionOverrides>
+
+</OfficeApp>
